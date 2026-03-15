@@ -64,8 +64,7 @@ shorter config path
 import { ShorterClient } from 'shorter.sh';
 
 const client = new ShorterClient({
-  apiKey: 'sk_your_key_here',     // or set SHORTER_API_KEY env var
-  baseUrl: 'https://shorter.sh',  // optional
+  apiKey: 'sk_your_key_here', // or set SHORTER_API_KEY env var
 });
 
 // Shorten a URL

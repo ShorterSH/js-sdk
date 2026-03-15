@@ -6,7 +6,7 @@
   "homepage": "https://shorter.sh",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ShorterSH/js-sdk"
+    "url": "git+https://github.com/ShorterSH/js-sdk.git"
   },
   "bugs": {
     "url": "https://github.com/ShorterSH/js-sdk/issues"
@@ -28,7 +28,7 @@
     }
   },
   "bin": {
-    "shorter": "./dist/cli.js"
+    "shorter": "dist/cli.js"
   },
   "files": [
     "dist"
