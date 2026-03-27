@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ShorterClient } from '../src/client.js';
-import { AuthenticationError, ValidationError, NotFoundError, NetworkError } from '../src/errors.js';
+import { AuthenticationError, ValidationError, NotFoundError, NetworkError, ServerError } from '../src/errors.js';
 import { createMockFetch } from './mock-fetch.js';
 
 const TEST_KEY = 'sk_' + 'a'.repeat(64);
@@ -163,6 +163,15 @@ describe('Network errors', () => {
     });
 
     await expect(client.shorten('https://example.com')).rejects.toThrow(NetworkError);
+  });
+
+  it('throws ServerError when the response body is not valid JSON', async () => {
+    const { client } = makeClient({
+      status: 200,
+      body: 'not json',
+    });
+
+    await expect(client.shorten('https://example.com')).rejects.toThrow(ServerError);
   });
 });
 

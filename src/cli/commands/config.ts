@@ -1,5 +1,6 @@
 import { loadConfig, saveConfig, getConfigPath } from '../config.js';
 import * as output from '../output.js';
+import { isValidApiKey } from '../../validation.js';
 
 export function configCommand(
   positional: string[],
@@ -50,8 +51,8 @@ export function configCommand(
     const config = loadConfig();
 
     if (key === 'api-key') {
-      if (!value.startsWith('sk_')) {
-        output.error('Invalid API key format. Keys must start with "sk_".');
+      if (!isValidApiKey(value)) {
+        output.error('Invalid API key format. Keys must match "sk_" followed by 64 lowercase hex characters.');
         process.exit(1);
       }
       config.apiKey = value;

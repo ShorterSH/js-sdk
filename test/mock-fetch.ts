@@ -1,6 +1,6 @@
 interface MockResponse {
   status?: number;
-  body: Record<string, unknown>;
+  body: Record<string, unknown> | string;
 }
 
 interface MockCall {
@@ -19,7 +19,7 @@ export function createMockFetch(responses: MockResponse | MockResponse[]) {
     const mock = queue.length > 1 ? queue.shift()! : queue[0];
     const status = mock.status ?? 200;
 
-    return new Response(JSON.stringify(mock.body), {
+    return new Response(typeof mock.body === 'string' ? mock.body : JSON.stringify(mock.body), {
       status,
       headers: { 'Content-Type': 'application/json' },
     });

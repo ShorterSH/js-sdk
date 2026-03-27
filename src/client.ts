@@ -1,6 +1,7 @@
 import { FetchWrapper } from './fetch-wrapper.js';
 import { AnalyticsClient } from './analytics.js';
 import { AuthenticationError } from './errors.js';
+import { isValidApiKey } from './validation.js';
 import type {
   ShorterClientOptions,
   ShortenResult,
@@ -34,9 +35,9 @@ export class ShorterClient {
         'AUTH_REQUIRED'
       );
     }
-    if (!apiKey.startsWith('sk_')) {
+    if (!isValidApiKey(apiKey)) {
       throw new AuthenticationError(
-        'Invalid API key format. Keys must start with "sk_".',
+        'Invalid API key format. Keys must match "sk_" followed by 64 lowercase hex characters.',
         'INVALID_API_KEY'
       );
     }

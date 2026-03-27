@@ -3,6 +3,7 @@ import { ShorterError } from '../errors.js';
 import { resolveApiKey, resolveBaseUrl, loadConfig, saveConfig } from './config.js';
 import { prompt } from './prompt.js';
 import * as output from './output.js';
+import { isValidApiKey } from '../validation.js';
 
 import { shortenCommand } from './commands/shorten.js';
 import { listCommand } from './commands/list.js';
@@ -96,8 +97,8 @@ async function ensureApiKey(): Promise<string> {
     process.exit(1);
   }
 
-  if (!apiKey.startsWith('sk_')) {
-    output.error('Invalid API key format. Keys must start with "sk_".');
+  if (!isValidApiKey(apiKey)) {
+    output.error('Invalid API key format. Keys must match "sk_" followed by 64 lowercase hex characters.');
     process.exit(1);
   }
 

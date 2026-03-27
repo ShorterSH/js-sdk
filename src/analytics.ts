@@ -10,6 +10,21 @@ import type {
   RawTimeSeriesPoint,
   RawTopUrl,
 } from './types.js';
+import { ServerError } from './errors.js';
+
+function expectRecord(value: unknown, name: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new ServerError(`Invalid ${name} response from server`, 'INVALID_RESPONSE');
+  }
+  return value as Record<string, unknown>;
+}
+
+function expectArray<T>(value: unknown, name: string): T[] {
+  if (!Array.isArray(value)) {
+    throw new ServerError(`Invalid ${name} response from server`, 'INVALID_RESPONSE');
+  }
+  return value as T[];
+}
 
 function mapTimeseries(raw: RawTimeSeriesPoint[]): TimeSeriesPoint[] {
   return raw.map((p) => ({
@@ -43,8 +58,8 @@ export class AnalyticsClient {
       },
     });
 
-    const timeseries = raw.timeseries as { granularity: string; data: RawTimeSeriesPoint[] };
-    const topUrls = raw.topUrls as RawTopUrl[];
+    const timeseries = expectRecord(raw.timeseries, 'timeseries') as { granularity: string; data: RawTimeSeriesPoint[] };
+    const topUrls = expectArray<RawTopUrl>(raw.topUrls, 'topUrls');
 
     return {
       totalClicks: raw.totalClicks as number,
@@ -53,7 +68,7 @@ export class AnalyticsClient {
       prevPeriodUnique: raw.prevPeriodUnique as number | null,
       timeseries: {
         granularity: timeseries.granularity,
-        data: mapTimeseries(timeseries.data),
+        data: mapTimeseries(expectArray<RawTimeSeriesPoint>(timeseries.data, 'timeseries data')),
       },
       topUrls: topUrls.map(mapTopUrl),
       countryBreakdown: raw.countryBreakdown as OverviewAnalyticsResult['countryBreakdown'],
@@ -77,19 +92,19 @@ export class AnalyticsClient {
       },
     });
 
-    const timeseries = raw.timeseries as { granularity: string; data: RawTimeSeriesPoint[] };
+    const timeseries = expectRecord(raw.timeseries, 'timeseries') as { granularity: string; data: RawTimeSeriesPoint[] };
     const mappedTimeseries = {
       granularity: timeseries.granularity,
-      data: mapTimeseries(timeseries.data),
+      data: mapTimeseries(expectArray<RawTimeSeriesPoint>(timeseries.data, 'timeseries data')),
     };
 
     if (options?.detail) {
       // detail=true: server returns url object (already camelCase) + breakdowns
       return {
-        url: raw.url as UrlAnalyticsDetailResult['url'],
+        url: expectRecord(raw.url, 'url') as UrlAnalyticsDetailResult['url'],
         summary: raw.summary as UrlAnalyticsDetailResult['summary'],
         timeseries: mappedTimeseries,
-        breakdowns: raw.breakdowns as UrlAnalyticsDetailResult['breakdowns'],
+        breakdowns: expectRecord(raw.breakdowns, 'breakdowns') as UrlAnalyticsDetailResult['breakdowns'],
       };
     }
 
