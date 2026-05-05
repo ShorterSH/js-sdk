@@ -11,6 +11,7 @@ import type {
   RawTopUrl,
 } from './types.js';
 import { ServerError } from './errors.js';
+import { assertShortCode } from './validation.js';
 
 function expectRecord(value: unknown, name: string): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -82,7 +83,8 @@ export class AnalyticsClient {
   async url(shortCode: string, options?: UrlAnalyticsOptions & { detail: true }): Promise<UrlAnalyticsDetailResult>;
   async url(shortCode: string, options?: UrlAnalyticsOptions): Promise<UrlAnalyticsResult>;
   async url(shortCode: string, options?: UrlAnalyticsOptions): Promise<UrlAnalyticsResult | UrlAnalyticsDetailResult> {
-    const raw = await this.fetch.request<Record<string, unknown>>(`/api/v1/analytics/${shortCode}`, {
+    const safeShortCode = encodeURIComponent(assertShortCode(shortCode));
+    const raw = await this.fetch.request<Record<string, unknown>>(`/api/v1/analytics/${safeShortCode}`, {
       params: {
         start: options?.start !== undefined ? String(options.start) : undefined,
         end: options?.end !== undefined ? String(options.end) : undefined,

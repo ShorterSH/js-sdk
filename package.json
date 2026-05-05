@@ -1,6 +1,6 @@
 {
   "name": "shorter.sh",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI and SDK for the shorter.sh URL shortener",
   "author": "ShorterSH",
   "homepage": "https://shorter.sh",
@@ -57,6 +57,6 @@
     "@types/node": "^25.5.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",
-    "vitest": "^2.0.0"
+    "vitest": "^4.1.5"
   }
 }

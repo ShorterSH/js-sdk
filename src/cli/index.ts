@@ -11,7 +11,7 @@ import { deleteCommand } from './commands/delete.js';
 import { analyticsCommand } from './commands/analytics.js';
 import { configCommand } from './commands/config.js';
 
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 
 interface ParsedArgs {
   flags: Record<string, string | true>;

@@ -1,7 +1,7 @@
 import { FetchWrapper } from './fetch-wrapper.js';
 import { AnalyticsClient } from './analytics.js';
 import { AuthenticationError } from './errors.js';
-import { isValidApiKey } from './validation.js';
+import { assertPositiveInt, assertShortCode, isValidApiKey } from './validation.js';
 import type {
   ShorterClientOptions,
   ShortenResult,
@@ -28,7 +28,11 @@ export class ShorterClient {
   private readonly fetch: FetchWrapper;
 
   constructor(options?: ShorterClientOptions) {
-    const apiKey = options?.apiKey || (typeof process !== 'undefined' ? process.env.SHORTER_API_KEY : undefined);
+    const envKey =
+      typeof process !== 'undefined' && typeof process.env?.SHORTER_API_KEY === 'string'
+        ? process.env.SHORTER_API_KEY
+        : undefined;
+    const apiKey = options?.apiKey || envKey;
     if (!apiKey) {
       throw new AuthenticationError(
         'API key is required. Pass it as options.apiKey or set SHORTER_API_KEY environment variable.',
@@ -68,6 +72,9 @@ export class ShorterClient {
   }
 
   async list(options?: ListUrlsOptions): Promise<ListUrlsResult> {
+    if (options?.page !== undefined) assertPositiveInt(options.page, 'page');
+    if (options?.limit !== undefined) assertPositiveInt(options.limit, 'limit', { max: 100 });
+
     const data = await this.fetch.request<{
       success: boolean;
       data: RawUrlItem[];
@@ -88,10 +95,11 @@ export class ShorterClient {
   }
 
   async delete(shortCode: string): Promise<DeleteResult> {
+    const safeShortCode = encodeURIComponent(assertShortCode(shortCode));
     const data = await this.fetch.request<{
       success: boolean;
       message: string;
-    }>(`/api/v1/urls/${shortCode}`, {
+    }>(`/api/v1/urls/${safeShortCode}`, {
       method: 'DELETE',
     });
 

@@ -150,7 +150,16 @@ describe('ShorterClient.delete', () => {
       body: { success: false, message: 'URL not found', code: 'NOT_FOUND' },
     });
 
-    await expect(client.delete('noCode1')).rejects.toThrow(NotFoundError);
+    await expect(client.delete('zzzzzz')).rejects.toThrow(NotFoundError);
+  });
+
+  it('validates short code before delete request', async () => {
+    const { client, mock } = makeClient({
+      body: { success: true, message: 'URL deleted' },
+    });
+
+    await expect(client.delete('../bad')).rejects.toThrow(ValidationError);
+    expect(mock.calls).toHaveLength(0);
   });
 });
 

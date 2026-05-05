@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ShorterClient } from '../src/client.js';
+import { ValidationError } from '../src/errors.js';
 import { createMockFetch } from './mock-fetch.js';
 
 const TEST_KEY = 'sk_' + 'a'.repeat(64);
@@ -153,5 +154,18 @@ describe('AnalyticsClient.url', () => {
     expect(result.url.shortCode).toBe('xK9mP2');
     expect(result.breakdowns.country.data[0].value).toBe('US');
     expect(result.timeseries.data[0].uniqueVisitors).toBe(40);
+  });
+
+  it('validates short code before analytics request', async () => {
+    const { client, mock } = makeClient({
+      body: {
+        success: true,
+        summary: {},
+        timeseries: { granularity: 'daily', data: [] },
+      },
+    });
+
+    await expect(client.analytics.url('bad/path')).rejects.toThrow(ValidationError);
+    expect(mock.calls).toHaveLength(0);
   });
 });

@@ -72,6 +72,7 @@ export class FetchWrapper {
         }
         data = parsed as Record<string, unknown>;
       } catch {
+        // Always throw on JSON parse failure — never silently return undefined fields.
         if (!response.ok) {
           throw mapStatusToError(
             response.status,
@@ -81,6 +82,9 @@ export class FetchWrapper {
         }
         throw new ServerError('Invalid JSON response from server', 'INVALID_RESPONSE');
       }
+    } else if (response.ok && method !== 'DELETE') {
+      // Empty body on a non-DELETE 2xx is unexpected for this API.
+      throw new ServerError('Empty response body from server', 'EMPTY_RESPONSE');
     }
 
     if (!response.ok || data.success === false) {
